@@ -1,0 +1,65 @@
+{
+  "name": "@themesic/n8n-nodes-perfex-crm",
+  "version": "0.1.0",
+  "description": "n8n node for Perfex CRM, by the developers of the official REST API module for Perfex CRM",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "perfex",
+    "perfex-crm",
+    "crm",
+    "invoicing"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/themesic/n8n-nodes-perfex-crm",
+  "author": {
+    "name": "Themesic Interactive",
+    "email": "info@themesic.com",
+    "url": "https://themesic.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themesic/n8n-nodes-perfex-crm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/themesic/n8n-nodes-perfex-crm/issues"
+  },
+  "engines": {
+    "node": ">=20.15"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "npx rimraf dist && tsc && node scripts/copy-icons.mjs",
+    "dev": "tsc --watch",
+    "format": "prettier nodes credentials --write",
+    "lint": "eslint nodes credentials package.json",
+    "lintfix": "eslint nodes credentials package.json --fix",
+    "prepublishOnly": "npm run build && npm run lint",
+    "scan": "npx @n8n/scan-community-package @themesic/n8n-nodes-perfex-crm"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/PerfexCrmApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/PerfexCrm/PerfexCrm.node.js",
+      "dist/nodes/PerfexCrm/PerfexCrmTrigger.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^8.32.0",
+    "eslint": "^9.26.0",
+    "eslint-plugin-n8n-nodes-base": "^1.16.3",
+    "jsonc-eslint-parser": "^3.1.0",
+    "n8n-workflow": "*",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
