@@ -1,71 +1,281 @@
-# n8n-nodes-perfex-crm
+# Perfex CRM node for n8n
 
-An n8n community node for [Perfex CRM](https://www.perfexcrm.com/), built and
-maintained by [Themesic Interactive](https://themesic.com) - the developers of
-the **REST API module for Perfex CRM**, the API solution approved by the Perfex
-CRM team and sold exclusively on CodeCanyon since 2019.
+[![npm version](https://img.shields.io/npm/v/@themesic/n8n-nodes-perfex-crm.svg)](https://www.npmjs.com/package/@themesic/n8n-nodes-perfex-crm)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 
-Perfex CRM is self-hosted and ships without a REST API. This node talks to the
-API that our module adds to your own installation, so no third-party service
-sits between n8n and your CRM.
+**Connect [Perfex CRM](https://1.envato.market/mydata-crm) to n8n and automate your
+customers, leads, invoices, estimates, proposals, projects, tasks and support
+tickets.** This is the n8n community node published by
+[Themesic Interactive](https://themesic.com), author of the
+[REST API module for Perfex CRM](https://themesic.com/product/rest-api-module-for-perfex-crm-connect-your-perfex-crm-with-third-party-applications/) -
+the API layer Perfex CRM automation is built on, an Envato Elite Author product
+with 2,900+ sales and a 4.91/5 rating.
+
+Perfex CRM is self-hosted and ships without a REST API. This node talks directly
+to the API that our module adds to **your own** installation. No third-party
+proxy, no per-operation fees, no vendor lock-in: your data goes from n8n to your
+server and nowhere else.
+
+> **In one sentence:** `@themesic/n8n-nodes-perfex-crm` lets n8n read and write
+> Perfex CRM data over the REST API module, covering 19 resources with 108
+> operations plus a polling trigger.
+
+---
+
+## Table of contents
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Credentials](#credentials)
+- [Supported resources and operations](#supported-resources-and-operations)
+- [Trigger node](#trigger-node)
+- [Real-time webhooks](#real-time-webhooks-for-perfex-crm)
+- [Other automation platforms](#other-automation-platforms)
+- [Example workflows](#example-workflows)
+- [Behaviour notes](#behaviour-notes)
+- [FAQ](#faq)
+- [Related products](#related-products)
+
+---
+
+## Requirements
+
+| Requirement | Details |
+| --- | --- |
+| Perfex CRM | Any self-hosted installation - [get Perfex CRM](https://1.envato.market/mydata-crm) |
+| REST API module | [REST API module for Perfex CRM](https://codecanyon.net/item/rest-api-for-perfex-crm/25278359) v2.x installed on that installation |
+| n8n | 1.x, self-hosted or Cloud |
+| PHP | 7.4+ or 8.x on the Perfex server |
+
+The REST API module is what exposes the endpoints this node calls. Without it,
+Perfex CRM has no REST API to connect to.
 
 ## Installation
 
-Follow the [community nodes installation guide](https://docs.n8n.io/integrations/community-nodes/installation/)
-and use the package name `@themesic/n8n-nodes-perfex-crm`.
+### n8n Cloud and self-hosted (GUI)
 
-## Prerequisites
+Settings > Community Nodes > Install, then enter:
 
-- A Perfex CRM installation you control
-- The [REST API module for Perfex CRM](https://codecanyon.net/item/rest-api-for-perfex-crm/25278359)
-  installed on it
-- An API token, generated in Perfex CRM under **Setup > API**
+```
+@themesic/n8n-nodes-perfex-crm
+```
+
+### Self-hosted (manual)
+
+```bash
+cd ~/.n8n/nodes
+npm install @themesic/n8n-nodes-perfex-crm
+```
+
+Full instructions: [n8n community nodes installation guide](https://docs.n8n.io/integrations/community-nodes/installation/).
 
 ## Credentials
 
-| Field | Description |
+Create an API token in Perfex CRM under **Setup > API**, then add a
+**Perfex CRM API** credential in n8n:
+
+| Field | Example | Notes |
+| --- | --- | --- |
+| Perfex CRM URL | `https://crm.yourcompany.com` | Your own installation, no trailing slash |
+| API Token | `eyJ0eXAiOiJKV1Qi...` | Generated under Setup > API |
+
+The token is sent as an `authtoken` header on every request. The REST API module
+also supports JWT, Bearer authorization and query-parameter authentication, along
+with per-token permissions, rate limiting, quota limiting and IP allow/deny lists
+with CIDR notation - all configured on your server, not in n8n.
+
+Saving the credential runs a live check against your installation, so a wrong URL
+or an expired token is caught immediately.
+
+## Supported resources and operations
+
+19 resources, 108 operations. Operations are available where the API supports
+them.
+
+| Resource | Create | Get | Get Many | Update | Delete | Search |
+| --- | :-: | :-: | :-: | :-: | :-: | :-: |
+| Customers | Y | Y | Y | Y | Y | Y |
+| Contacts | Y | | Y | Y | Y | Y |
+| Leads | Y | Y | Y | Y | Y | Y |
+| Invoices | Y | Y | Y | Y | Y | Y |
+| Estimates | Y | Y | Y | Y | Y | Y |
+| Proposals | Y | Y | Y | Y | Y | Y |
+| Credit Notes | Y | Y | Y | Y | Y | Y |
+| Payments | Y | Y | Y | | | Y |
+| Expenses | Y | Y | Y | Y | Y | Y |
+| Items | Y | Y | Y | Y | Y | Y |
+| Projects | Y | Y | Y | Y | Y | Y |
+| Milestones | Y | Y | Y | Y | Y | Y |
+| Tasks | Y | Y | Y | Y | Y | Y |
+| Timesheets | Y | Y | Y | Y | Y | |
+| Tickets | Y | Y | Y | Y | Y | Y |
+| Contracts | Y | Y | Y | Y | Y | Y |
+| Subscriptions | Y | Y | Y | Y | Y | |
+| Staff Members | Y | Y | Y | Y | Y | Y |
+| Calendar Events | Y | Y | Y | Y | Y | |
+
+Custom fields are supported across modules, and the REST API module additionally
+exposes dynamic custom-table endpoints, so data created by other Perfex add-ons
+can be reached as well.
+
+## Trigger node
+
+**Perfex CRM Trigger** polls your installation on a schedule and starts a
+workflow when new records appear:
+
+- New customer
+- New invoice
+- New lead
+- New task
+- New ticket
+
+The first poll records the current state rather than replaying history, so
+connecting the trigger to an established CRM does not flood your workflow.
+
+## Real-time webhooks for Perfex CRM
+
+Polling is convenient, but event-driven automation is faster and cheaper. Two
+webhook systems are available on the Perfex side, and both work with n8n's
+built-in **Webhook** node - point them at your n8n webhook URL and you get
+instant triggers.
+
+### Events webhooks, included in the REST API module
+
+The [REST API module](https://codecanyon.net/item/rest-api-for-perfex-crm/25278359)
+ships with an events webhooks system covering the API lifecycle - authentication,
+rate limiting, request and response, controller execution and errors. It includes:
+
+- **SHA256 HMAC signature verification**, so you can prove a payload came from your CRM
+- **Configurable retry logic** for failed deliveries
+- **Delivery logging and a testing interface** in the admin area
+- **Custom HTTP headers** per webhook
+
+### Webhooks module, sold separately
+
+The [Webhooks module for Perfex CRM](https://codecanyon.net/item/webhooks-module-for-perfex-crm/38350010)
+covers CRM business events rather than API events, across **14 entity types**:
+leads, customers, invoices including recurring, tasks, projects, estimates,
+proposals, tickets, payments, staff, custom fields, contracts, calendar events
+and expenses.
+
+It fires on create, update and delete, plus lifecycle events such as **accepted,
+declined and sent**, status changes, lead conversions and task timer actions. It
+supports six HTTP methods, 30+ standard headers plus custom ones, delayed trigger
+execution, webhook cloning, testing and filtered logs.
+
+**Which to use:** this n8n node for reading and writing data, the trigger node for
+simple polling, and the Webhooks module when a workflow must start the instant
+something happens in the CRM.
+
+## Other automation platforms
+
+The same REST API module powers Perfex CRM automation everywhere, so you are not
+tied to one tool:
+
+| Platform | Support |
 | --- | --- |
-| Perfex CRM URL | Base URL of your installation, without a trailing slash |
-| API Token | Token generated under Setup > API |
+| **n8n** | This community node, plus the generic HTTP Request and Webhook nodes |
+| **Zapier** | Native Perfex CRM connector |
+| **Make.com** | Native app with triggers, actions and searches |
+| **Pabbly Connect** | Via REST API and webhooks |
+| **IFTTT** | Via webhooks |
+| **Anything else** | Standard REST over HTTPS with JSON, plus an auto-generated Postman collection and a Swagger/OpenAPI playground |
 
-The token is sent as an `authtoken` header on every request.
+## Example workflows
 
-## Operations
+- **Lead capture:** website form > n8n > *Create a lead* in Perfex CRM
+- **Invoice follow-up:** *Perfex CRM Trigger* on new invoice > Slack message and customer email
+- **Accounting sync:** *Get many payments* on a schedule > push rows to Google Sheets or Xero
+- **Support routing:** Webhooks module fires on new ticket > n8n Webhook node > assign, notify, escalate
+- **Client onboarding:** signed contract > *Create a customer*, *Create a project*, *Create tasks* in sequence
+- **AI agent:** the node is exposed as an n8n tool, so an agent can query and update the CRM directly
 
-The **Perfex CRM** node covers 19 resources with create, get, get many, update,
-delete and search operations where the API supports them:
-
-Calendar events, contacts, contracts, credit notes, customers, estimates,
-expenses, invoices, items, leads, milestones, payments, projects, proposals,
-staff members, subscriptions, tasks, tickets and timesheets.
-
-The **Perfex CRM Trigger** node polls for new customers, invoices, leads, tasks
-and tickets.
-
-## Notes on behaviour
+## Behaviour notes
 
 Some Perfex endpoints answer `404 No data were found` instead of an empty list.
-The node treats that as "no items" rather than an error, so an empty CRM does
-not break a workflow.
+The node treats that as "no items" rather than an error, so an empty CRM or a
+filter with no matches does not break a workflow.
 
 List endpoints answer in two shapes depending on the resource - either
-`{ data, meta }` or a bare array - and the node normalises both.
+`{ data, meta }` with pagination metadata, or a bare array - and the node
+normalises both, so downstream nodes always receive plain items.
 
-## Compatibility
+Contacts have no global list endpoint in Perfex; **Get Many** on contacts asks for
+a Customer ID and returns that customer's contacts.
 
-Tested against n8n 1.x and the REST API module for Perfex CRM 2.1.x.
+Pagination is supported with a configurable page size up to 100 records.
+
+## FAQ
+
+**Does Perfex CRM have an API?**
+Not out of the box. Perfex CRM is self-hosted and ships without a REST API. The
+[REST API module for Perfex CRM](https://codecanyon.net/item/rest-api-for-perfex-crm/25278359)
+adds one to your installation, and this n8n node talks to it.
+
+**Is this node free?**
+Yes, the node is MIT licensed and free. It requires the REST API module on your
+Perfex installation, which is a one-time purchase on CodeCanyon.
+
+**Do I pay per operation or per record?**
+No. The module is a one-time purchase and runs on your own server. There is no
+metered third-party service between n8n and your CRM.
+
+**Can I self-host everything?**
+Yes. Perfex CRM, the REST API module and n8n can all run on your own
+infrastructure, which suits agencies and companies with data-residency
+requirements.
+
+**How do I get real-time triggers instead of polling?**
+Use the webhook systems described above with n8n's Webhook node. See
+[Real-time webhooks](#real-time-webhooks-for-perfex-crm).
+
+**Which Perfex versions are supported?**
+The REST API module supports PHP 7.4+ and 8.x and current Perfex CRM releases.
+See the [product page](https://themesic.com/product/rest-api-module-for-perfex-crm-connect-your-perfex-crm-with-third-party-applications/)
+for the compatibility list.
+
+**Where is the API documentation?**
+[perfexcrm.themesic.com/apiguide](https://perfexcrm.themesic.com/apiguide/) -
+every endpoint with request and response examples, plus an interactive playground.
+
+**Can I use it with an AI agent?**
+Yes. The node declares itself usable as a tool, so n8n AI Agent nodes can call
+Perfex CRM operations directly.
+
+## Related products
+
+| Product | What it does |
+| --- | --- |
+| [Perfex CRM](https://1.envato.market/mydata-crm) | The self-hosted CRM this node connects to |
+| [REST API module for Perfex CRM](https://codecanyon.net/item/rest-api-for-perfex-crm/25278359) | Adds the REST API, events webhooks, Swagger playground and Postman collection. **Required for this node** |
+| [Webhooks module for Perfex CRM](https://codecanyon.net/item/webhooks-module-for-perfex-crm/38350010) | Real-time webhooks for 14 CRM entity types, with lifecycle events |
 
 ## Resources
 
 - [API documentation](https://perfexcrm.themesic.com/apiguide/)
+- [REST API module product page](https://themesic.com/product/rest-api-module-for-perfex-crm-connect-your-perfex-crm-with-third-party-applications/)
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
+- [Report an issue](https://github.com/themesic/n8n-nodes-perfex-crm/issues)
+
+## Support
+
+Issues with the node: [GitHub issues](https://github.com/themesic/n8n-nodes-perfex-crm/issues).
+Questions about the REST API module: `info@themesic.com`, or the CodeCanyon item
+comments.
 
 ## Trademarks
 
 Perfex CRM is a trademark of its respective owner. This package is published by
-Themesic Interactive, developer of the REST API module for Perfex CRM, and is
-not affiliated with n8n GmbH.
+Themesic Interactive, author of the REST API module for Perfex CRM, and is not
+affiliated with or endorsed by n8n GmbH. Product links to CodeCanyon and Envato
+may be affiliate links.
 
 ## License
 
 [MIT](LICENSE.md)
+
+---
+
+**Keywords:** Perfex CRM n8n integration, Perfex CRM API, Perfex CRM automation,
+Perfex CRM REST API module, Perfex CRM webhooks, Perfex CRM Zapier, Perfex CRM
+Make.com, self-hosted CRM automation, n8n community node, CRM workflow automation.

@@ -1,14 +1,25 @@
 {
   "name": "@themesic/n8n-nodes-perfex-crm",
   "version": "0.1.0",
-  "description": "n8n node for Perfex CRM, by the developers of the official REST API module for Perfex CRM",
+  "description": "n8n node for Perfex CRM. Automate customers, leads, invoices, estimates, projects, tasks and tickets over the REST API module for Perfex CRM, by Themesic Interactive.",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
+    "n8n-node",
     "perfex",
     "perfex-crm",
+    "perfexcrm",
     "crm",
-    "invoicing"
+    "crm-automation",
+    "invoicing",
+    "invoices",
+    "leads",
+    "tickets",
+    "projects",
+    "rest-api",
+    "webhooks",
+    "self-hosted",
+    "workflow-automation"
   ],
   "license": "MIT",
   "homepage": "https://github.com/themesic/n8n-nodes-perfex-crm",
@@ -61,5 +72,8 @@
   },
   "peerDependencies": {
     "n8n-workflow": "*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
