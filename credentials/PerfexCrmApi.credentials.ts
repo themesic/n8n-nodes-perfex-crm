@@ -10,6 +10,8 @@ export class PerfexCrmApi implements ICredentialType {
 
 	displayName = 'Perfex CRM API';
 
+	icon = { light: 'file:perfexCrm.svg', dark: 'file:perfexCrm.dark.svg' } as const;
+
 	documentationUrl = 'https://perfexcrm.themesic.com/apiguide/';
 
 	properties: INodeProperties[] = [

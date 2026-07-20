@@ -5,21 +5,22 @@ import type {
 	INodeTypeDescription,
 	IPollFunctions,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 export class PerfexCrmTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Perfex CRM Trigger',
 		name: 'perfexCrmTrigger',
-		icon: 'file:perfexCrm.svg',
+		icon: { light: 'file:perfexCrm.svg', dark: 'file:perfexCrm.dark.svg' },
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["resource"]}}',
 		description: 'Starts a workflow when records appear in Perfex CRM',
 		defaults: { name: 'Perfex CRM Trigger' },
 		polling: true,
+		usableAsTool: true,
 		inputs: [],
-		outputs: ['main'],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [{ name: 'perfexCrmApi', required: true }],
 		properties: [
 			{

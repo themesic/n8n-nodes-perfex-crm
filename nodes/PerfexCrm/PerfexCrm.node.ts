@@ -5,20 +5,20 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 export class PerfexCrm implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Perfex CRM',
 		name: 'perfexCrm',
-		icon: 'file:perfexCrm.svg',
+		icon: { light: 'file:perfexCrm.svg', dark: 'file:perfexCrm.dark.svg' },
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Read and write data in Perfex CRM',
 		defaults: { name: 'Perfex CRM' },
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		usableAsTool: true,
 		credentials: [{ name: 'perfexCrmApi', required: true }],
 		properties: [
@@ -5648,7 +5648,9 @@ export class PerfexCrm implements INodeType {
 					});
 					continue;
 				}
-				throw error;
+				throw new NodeOperationError(this.getNode(), error as Error, {
+					itemIndex: i,
+				});
 			}
 		}
 
