@@ -20,8 +20,14 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm 11.5.1 or newer. Node 22 still ships npm
+      # 10.x, which fails the publish step without a useful message.
+      - run: npm install -g npm@latest
+
+      - run: npm --version
 
       - run: npm ci
 
