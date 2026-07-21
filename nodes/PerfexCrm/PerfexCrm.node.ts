@@ -37,8 +37,11 @@ export class PerfexCrm implements INodeType {
 					{ name: 'Expense', value: 'expenses' },
 					{ name: 'Invoice', value: 'invoices' },
 					{ name: 'Item', value: 'items' },
+					{ name: 'Knowledge Base Article', value: 'knowledgeBase' },
+					{ name: 'Knowledge Base Group', value: 'knowledgeBaseGroup' },
 					{ name: 'Lead', value: 'leads' },
 					{ name: 'Milestone', value: 'milestones' },
+					{ name: 'Note', value: 'note' },
 					{ name: 'Payment', value: 'payments' },
 					{ name: 'Project', value: 'projects' },
 					{ name: 'Proposal', value: 'proposals' },
@@ -47,6 +50,7 @@ export class PerfexCrm implements INodeType {
 					{ name: 'Task', value: 'tasks' },
 					{ name: 'Ticket', value: 'tickets' },
 					{ name: 'Timesheet', value: 'timesheets' },
+					{ name: 'Webhook', value: 'webhook' },
 				],
 				default: 'customers',
 			},
@@ -345,6 +349,69 @@ export class PerfexCrm implements INodeType {
 					{ name: 'Get', value: 'get', action: 'Get timesheet', description: 'Get timesheet' },
 					{ name: 'Get Many', value: 'getAll', action: 'Get many timesheets', description: 'Get Many timesheets' },
 					{ name: 'Update', value: 'update', action: 'Update timesheet', description: 'Update timesheet' },
+				],
+				default: 'create',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['knowledgeBase'] } },
+				options: [
+					{ name: 'Create', value: 'create', action: 'Create knowledge base article', description: 'Create knowledge base article' },
+					{ name: 'Delete', value: 'delete', action: 'Delete knowledge base article', description: 'Delete knowledge base article' },
+					{ name: 'Get', value: 'get', action: 'Get knowledge base article', description: 'Get knowledge base article' },
+					{ name: 'Get Many', value: 'getAll', action: 'Get many knowledge base articles', description: 'Get Many knowledge base articles' },
+					{ name: 'Search', value: 'search', action: 'Search knowledge base articles', description: 'Search knowledge base articles' },
+					{ name: 'Update', value: 'update', action: 'Update knowledge base article', description: 'Update knowledge base article' },
+				],
+				default: 'create',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['knowledgeBaseGroup'] } },
+				options: [
+					{ name: 'Create', value: 'create', action: 'Create knowledge base group', description: 'Create knowledge base group' },
+					{ name: 'Delete', value: 'delete', action: 'Delete knowledge base group', description: 'Delete knowledge base group' },
+					{ name: 'Get Many', value: 'getAll', action: 'Get many knowledge base groups', description: 'Get Many knowledge base groups' },
+					{ name: 'Update', value: 'update', action: 'Update knowledge base group', description: 'Update knowledge base group' },
+				],
+				default: 'create',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['note'] } },
+				options: [
+					{ name: 'Create', value: 'create', action: 'Create note', description: 'Create note' },
+					{ name: 'Delete', value: 'delete', action: 'Delete note', description: 'Delete note' },
+					{ name: 'Get', value: 'get', action: 'Get note', description: 'Get note' },
+					{ name: 'List By Entity', value: 'listByEntity', action: 'List notes attached to an entity', description: 'List notes attached to an entity' },
+					{ name: 'Update', value: 'update', action: 'Update note', description: 'Update note' },
+				],
+				default: 'create',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: { show: { resource: ['webhook'] } },
+				options: [
+					{ name: 'Create', value: 'create', action: 'Create webhook', description: 'Create webhook' },
+					{ name: 'Delete', value: 'delete', action: 'Delete webhook', description: 'Delete webhook' },
+					{ name: 'Get', value: 'get', action: 'Get webhook', description: 'Get webhook' },
+					{ name: 'Get Event Catalog', value: 'events', action: 'Get the webhook event catalog', description: 'Get the webhook event catalog' },
+					{ name: 'Get Logs', value: 'logs', action: 'Get logs webhooks', description: 'Get Logs webhooks' },
+					{ name: 'Get Many', value: 'getAll', action: 'Get many webhooks', description: 'Get Many webhooks' },
+					{ name: 'Toggle', value: 'toggle', action: 'Enable or disable a webhook', description: 'Enable or disable a webhook' },
+					{ name: 'Update', value: 'update', action: 'Update webhook', description: 'Update webhook' },
 				],
 				default: 'create',
 			},
@@ -678,7 +745,7 @@ export class PerfexCrm implements INodeType {
 				type: 'boolean',
 				default: false,
 				description: 'Whether to return all results or only up to a given limit',
-				displayOptions: { show: { resource: ['calendar', 'contacts', 'contracts', 'creditNotes', 'customers', 'estimates', 'expenses', 'invoices', 'items', 'leads', 'milestones', 'payments', 'projects', 'proposals', 'staffs', 'subscriptions', 'tasks', 'tickets', 'timesheets'], operation: ['getAll', 'search'] } },
+				displayOptions: { show: { resource: ['calendar', 'contacts', 'contracts', 'creditNotes', 'customers', 'estimates', 'expenses', 'invoices', 'items', 'leads', 'milestones', 'payments', 'projects', 'proposals', 'staffs', 'subscriptions', 'tasks', 'tickets', 'timesheets', 'knowledgeBase', 'knowledgeBaseGroup', 'note', 'webhook'], operation: ['getAll', 'search', 'listByEntity', 'logs'] } },
 			},
 			{
 				displayName: 'Limit',
@@ -687,7 +754,47 @@ export class PerfexCrm implements INodeType {
 				default: 50,
 				typeOptions: { minValue: 1 },
 				description: 'Max number of results to return',
-				displayOptions: { show: { resource: ['calendar', 'contacts', 'contracts', 'creditNotes', 'customers', 'estimates', 'expenses', 'invoices', 'items', 'leads', 'milestones', 'payments', 'projects', 'proposals', 'staffs', 'subscriptions', 'tasks', 'tickets', 'timesheets'], operation: ['getAll', 'search'], returnAll: [false] } },
+				displayOptions: { show: { resource: ['calendar', 'contacts', 'contracts', 'creditNotes', 'customers', 'estimates', 'expenses', 'invoices', 'items', 'leads', 'milestones', 'payments', 'projects', 'proposals', 'staffs', 'subscriptions', 'tasks', 'tickets', 'timesheets', 'knowledgeBase', 'knowledgeBaseGroup', 'note', 'webhook'], operation: ['getAll', 'search', 'listByEntity', 'logs'], returnAll: [false] } },
+			},
+			{
+				displayName: 'Options',
+				name: 'options',
+				type: 'collection',
+				placeholder: 'Add Option',
+				default: {},
+				displayOptions: { show: { resource: ['calendar', 'contacts', 'contracts', 'creditNotes', 'customers', 'estimates', 'expenses', 'invoices', 'items', 'leads', 'milestones', 'payments', 'projects', 'proposals', 'staffs', 'subscriptions', 'tasks', 'tickets', 'timesheets', 'knowledgeBase', 'knowledgeBaseGroup', 'webhook'], operation: ['getAll', 'search'] } },
+				options: [
+					{
+						displayName: 'Created After',
+						name: 'created_after',
+						type: 'dateTime',
+						default: '',
+						description: 'Keep only records created on or after this date (v3)',
+					},
+					{
+						displayName: 'Created Before',
+						name: 'created_before',
+						type: 'dateTime',
+						default: '',
+						description: 'Keep only records created on or before this date (v3)',
+					},
+					{
+						displayName: 'Fields',
+						name: 'fields',
+						type: 'string',
+						default: '',
+						placeholder: 'ID,company,datecreated',
+						description: 'Comma-separated list of columns to return; ID is always included (v3)',
+					},
+					{
+						displayName: 'Sort',
+						name: 'sort',
+						type: 'string',
+						default: '',
+						placeholder: '-datecreated,company',
+						description: 'Comma-separated columns to sort by; prefix a column with - for descending (v3)',
+					},
+				],
 			},
 			{
 				displayName: 'Title',
@@ -5493,6 +5600,455 @@ export class PerfexCrm implements INodeType {
 					},
 				],
 			},
+			{
+				displayName: 'Knowledge Base Article ID',
+				name: 'recordId',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'ID of the knowledge base article to act on',
+				displayOptions: { show: { resource: ['knowledgeBase'], operation: ['get', 'update', 'delete'] } },
+			},
+			{
+				displayName: 'Search Term',
+				name: 'searchTerm',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'Keyword to match against the records',
+				displayOptions: { show: { resource: ['knowledgeBase'], operation: ['search'] } },
+			},
+			{
+				displayName: 'Subject',
+				name: 'subject',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'Article title',
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBase'],
+						operation: ['create'],
+					},
+				},
+			},
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBase'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Active',
+						name: 'active',
+						type: 'boolean',
+						default: false,
+						description: 'Whether the article is published',
+					},
+					{
+						displayName: 'Article Order',
+						name: 'article_order',
+						type: 'number',
+						default: 0,
+						description: 'Display order within the group',
+					},
+					{
+						displayName: 'Articlegroup',
+						name: 'articlegroup',
+						type: 'string',
+						default: '',
+						description: 'ID of the group the article belongs to',
+					},
+					{
+						displayName: 'Description',
+						name: 'description',
+						type: 'string',
+						default: '',
+						description: 'Article body',
+					},
+					{
+						displayName: 'Staff Article',
+						name: 'staff_article',
+						type: 'boolean',
+						default: false,
+						description: 'Whether the article is visible to staff only',
+					},
+				],
+			},
+			{
+				displayName: 'Update Fields',
+				name: 'updateFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBase'],
+						operation: ['update'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Active',
+						name: 'active',
+						type: 'boolean',
+						default: false,
+						description: 'Whether the article is published',
+					},
+					{
+						displayName: 'Article Order',
+						name: 'article_order',
+						type: 'number',
+						default: 0,
+						description: 'Display order within the group',
+					},
+					{
+						displayName: 'Articlegroup',
+						name: 'articlegroup',
+						type: 'string',
+						default: '',
+						description: 'ID of the group the article belongs to',
+					},
+					{
+						displayName: 'Description',
+						name: 'description',
+						type: 'string',
+						default: '',
+						description: 'Article body',
+					},
+					{
+						displayName: 'Staff Article',
+						name: 'staff_article',
+						type: 'boolean',
+						default: false,
+						description: 'Whether the article is visible to staff only',
+					},
+					{
+						displayName: 'Subject',
+						name: 'subject',
+						type: 'string',
+						default: '',
+						description: 'Article title',
+					},
+				],
+			},
+			{
+				displayName: 'Knowledge Base Group ID',
+				name: 'recordId',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'ID of the knowledge base group to act on',
+				displayOptions: { show: { resource: ['knowledgeBaseGroup'], operation: ['update', 'delete'] } },
+			},
+			{
+				displayName: 'Name',
+				name: 'name',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'Group name',
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBaseGroup'],
+						operation: ['create'],
+					},
+				},
+			},
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBaseGroup'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Active',
+						name: 'active',
+						type: 'boolean',
+						default: false,
+						description: 'Whether the group is active',
+					},
+					{
+						displayName: 'Color',
+						name: 'color',
+						type: 'color',
+						default: '',
+						description: 'Hex colour, e.g. #28B8DA',
+					},
+					{
+						displayName: 'Description',
+						name: 'description',
+						type: 'string',
+						default: '',
+						description: 'Group description',
+					},
+					{
+						displayName: 'Group Order',
+						name: 'group_order',
+						type: 'number',
+						default: 0,
+						description: 'Display order',
+					},
+				],
+			},
+			{
+				displayName: 'Update Fields',
+				name: 'updateFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBaseGroup'],
+						operation: ['update'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Active',
+						name: 'active',
+						type: 'boolean',
+						default: false,
+						description: 'Whether the group is active',
+					},
+					{
+						displayName: 'Color',
+						name: 'color',
+						type: 'color',
+						default: '',
+						description: 'Hex colour, e.g. #28B8DA',
+					},
+					{
+						displayName: 'Description',
+						name: 'description',
+						type: 'string',
+						default: '',
+						description: 'Group description',
+					},
+					{
+						displayName: 'Group Order',
+						name: 'group_order',
+						type: 'number',
+						default: 0,
+						description: 'Display order',
+					},
+					{
+						displayName: 'Name',
+						name: 'name',
+						type: 'string',
+						default: '',
+						description: 'Group name',
+					},
+				],
+			},
+			{
+				displayName: 'Note ID',
+				name: 'recordId',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'ID of the note to act on',
+				displayOptions: { show: { resource: ['note'], operation: ['get', 'update', 'delete'] } },
+			},
+			{
+				displayName: 'Related To',
+				name: 'rel_type',
+				type: 'options',
+				default: 'customer',
+				description: 'Type of entity the note is attached to',
+				options: [
+					{ name: 'Contract', value: 'contract' },
+					{ name: 'Credit Note', value: 'credit_note' },
+					{ name: 'Customer', value: 'customer' },
+					{ name: 'Estimate', value: 'estimate' },
+					{ name: 'Expense', value: 'expense' },
+					{ name: 'Invoice', value: 'invoice' },
+					{ name: 'Lead', value: 'lead' },
+					{ name: 'Project', value: 'project' },
+					{ name: 'Proposal', value: 'proposal' },
+					{ name: 'Staff', value: 'staff' },
+					{ name: 'Task', value: 'task' },
+					{ name: 'Ticket', value: 'ticket' },
+				],
+				displayOptions: { show: { resource: ['note'], operation: ['create', 'listByEntity'] } },
+			},
+			{
+				displayName: 'Related Record ID',
+				name: 'rel_id',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'ID of the entity the note is attached to',
+				displayOptions: { show: { resource: ['note'], operation: ['create', 'listByEntity'] } },
+			},
+			{
+				displayName: 'Description',
+				name: 'description',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'The note text',
+				displayOptions: {
+					show: {
+						resource: ['note'],
+						operation: ['create'],
+					},
+				},
+			},
+			{
+				displayName: 'Update Fields',
+				name: 'updateFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['note'],
+						operation: ['update'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Description',
+						name: 'description',
+						type: 'string',
+						default: '',
+						description: 'The note text',
+					},
+				],
+			},
+			{
+				displayName: 'Webhook ID',
+				name: 'recordId',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'ID of the webhook to act on',
+				displayOptions: { show: { resource: ['webhook'], operation: ['get', 'update', 'delete'] } },
+			},
+			{
+				displayName: 'Name',
+				name: 'name',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'A label for the webhook',
+				displayOptions: {
+					show: {
+						resource: ['webhook'],
+						operation: ['create'],
+					},
+				},
+			},
+			{
+				displayName: 'Url',
+				name: 'url',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'HTTPS endpoint that will receive the events',
+				displayOptions: {
+					show: {
+						resource: ['webhook'],
+						operation: ['create'],
+					},
+				},
+			},
+			{
+				displayName: 'Events',
+				name: 'events',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'Comma-separated event keys, or * for all (see Get Event Catalog)',
+				displayOptions: {
+					show: {
+						resource: ['webhook'],
+						operation: ['create'],
+					},
+				},
+			},
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['webhook'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Secret',
+						name: 'secret',
+						type: 'string',
+						typeOptions: { password: true },
+						default: '',
+						description: 'Shared secret used to HMAC-sign deliveries',
+					},
+				],
+			},
+			{
+				displayName: 'Update Fields',
+				name: 'updateFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['webhook'],
+						operation: ['update'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Events',
+						name: 'events',
+						type: 'string',
+						default: '',
+						description: 'Comma-separated event keys, or * for all (see Get Event Catalog)',
+					},
+					{
+						displayName: 'Name',
+						name: 'name',
+						type: 'string',
+						default: '',
+						description: 'A label for the webhook',
+					},
+					{
+						displayName: 'Secret',
+						name: 'secret',
+						type: 'string',
+						typeOptions: { password: true },
+						default: '',
+						description: 'Shared secret used to HMAC-sign deliveries',
+					},
+					{
+						displayName: 'Url',
+						name: 'url',
+						type: 'string',
+						default: '',
+						description: 'HTTPS endpoint that will receive the events',
+					},
+				],
+			},
 		],
 	};
 
@@ -5524,6 +6080,10 @@ export class PerfexCrm implements INodeType {
 			tasks: 'tasks',
 			tickets: 'tickets',
 			timesheets: 'timesheets',
+			knowledgeBase: 'knowledge_base',
+			knowledgeBaseGroup: 'knowledge_base/groups',
+			note: 'notes',
+			webhook: 'webhooks',
 		};
 
 		const reserved = [
@@ -5531,6 +6091,7 @@ export class PerfexCrm implements INodeType {
 			'operation',
 			'additionalFields',
 			'updateFields',
+			'options',
 			'returnAll',
 			'limit',
 			'recordId',
@@ -5559,6 +6120,23 @@ export class PerfexCrm implements INodeType {
 					endpoint = `/api/contacts/${this.getNodeParameter('customerId', i) as string}`;
 				}
 
+				// v3 irregular routes
+				if (operation === 'listByEntity') {
+					const relType = this.getNodeParameter('rel_type', i) as string;
+					const relId = this.getNodeParameter('rel_id', i) as string;
+					endpoint = `/api/${path}/${relType}/${relId}`;
+				}
+				if (operation === 'toggle') {
+					method = 'POST';
+					endpoint = `/api/${path}/${this.getNodeParameter('recordId', i) as string}/toggle`;
+				}
+				if (operation === 'logs') {
+					endpoint = `/api/${path}/${this.getNodeParameter('recordId', i) as string}/logs`;
+				}
+				if (operation === 'events') {
+					endpoint = `/api/${path}/events`;
+				}
+
 				if (operation === 'create') {
 					method = 'POST';
 					body = { ...(this.getNodeParameter('additionalFields', i, {}) as IDataObject) };
@@ -5580,11 +6158,21 @@ export class PerfexCrm implements INodeType {
 
 				const qs: IDataObject = {};
 				let limit = 0;
-				if (operation === 'getAll' || operation === 'search') {
+				const listOps = ['getAll', 'search', 'listByEntity', 'logs'];
+				if (listOps.includes(operation)) {
 					const returnAll = this.getNodeParameter('returnAll', i, false) as boolean;
 					if (!returnAll) {
 						limit = this.getNodeParameter('limit', i, 50) as number;
 						qs.per_page = limit;
+					}
+				}
+				// v3 list toolkit (sort, fields, date-range); older servers ignore these.
+				if (operation === 'getAll' || operation === 'search') {
+					const listOptions = this.getNodeParameter('options', i, {}) as IDataObject;
+					for (const [key, value] of Object.entries(listOptions)) {
+						if (value !== undefined && value !== '') {
+							qs[key] = value as string;
+						}
 					}
 				}
 

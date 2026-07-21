@@ -17,8 +17,28 @@ proxy, no per-operation fees, no vendor lock-in: your data goes from n8n to your
 server and nowhere else.
 
 > **In one sentence:** `@themesic/n8n-nodes-perfex-crm` lets n8n read and write
-> Perfex CRM data over the REST API module, covering 19 resources with 108
+> Perfex CRM data over the REST API module, covering 23 resources with 130+
 > operations plus a polling trigger.
+
+## What's new (REST API module v3)
+
+The module the node connects to reached **v3.0.0, the AI-ready release**. This
+node now exposes the parts of v3 that matter inside n8n:
+
+- **Knowledge Base** articles and groups, and polymorphic **Notes** you can
+  attach to customers, leads, tickets, invoices and eight more entity types
+- **Webhooks management** - create, list, update, delete, enable/disable and
+  read delivery logs of Perfex webhooks straight from a workflow, plus a Get
+  Event Catalog operation listing all 124 events
+- A **list toolkit** on every Get Many / Search: sorting, field selection and
+  `created_after` / `created_before` date-range filters, on top of pagination
+
+v3 also ships things that work *through* this node without extra configuration:
+an **MCP server** with 148 AI-agent tools, **Webhooks 2.0** (124 events, async
+delivery with retries and HMAC signatures), an **OpenAPI 3.1** endpoint,
+**batch operations**, `Idempotency-Key` support and `X-RateLimit` headers. See
+[Real-time webhooks](#real-time-webhooks-for-perfex-crm) and
+[AI agents](#ai-agents-mcp).
 
 ---
 
@@ -31,6 +51,7 @@ server and nowhere else.
 - [Trigger node](#trigger-node)
 - [Real-time webhooks](#real-time-webhooks-for-perfex-crm)
 - [Other automation platforms](#other-automation-platforms)
+- [AI agents (MCP)](#ai-agents-mcp)
 - [Example workflows](#example-workflows)
 - [Behaviour notes](#behaviour-notes)
 - [FAQ](#faq)
@@ -89,7 +110,7 @@ or an expired token is caught immediately.
 
 ## Supported resources and operations
 
-19 resources, 108 operations. Operations are available where the API supports
+23 resources, 130+ operations. Operations are available where the API supports
 them.
 
 | Resource | Create | Get | Get Many | Update | Delete | Search |
@@ -113,6 +134,19 @@ them.
 | Subscriptions | Y | Y | Y | Y | Y | |
 | Staff Members | Y | Y | Y | Y | Y | Y |
 | Calendar Events | Y | Y | Y | Y | Y | |
+| Knowledge Base | Y | Y | Y | Y | Y | Y |
+| Knowledge Base Groups | Y | | Y | Y | Y | |
+| Notes | Y | Y | | Y | Y | |
+| Webhooks | Y | Y | Y | Y | Y | |
+
+**Notes** are polymorphic: create one against any of 12 entity types, and use
+*List By Entity* to read all notes on a given record. **Webhooks** add
+*Toggle* (enable/disable), *Get Logs* (delivery history) and *Get Event
+Catalog* (all 124 event keys) beyond plain CRUD.
+
+Every **Get Many** and **Search** accepts an **Options** field with `sort`,
+`fields`, `created_after` and `created_before` (v3 list toolkit), on top of the
+Return All / Limit pagination.
 
 Custom fields are supported across modules, and the REST API module additionally
 exposes dynamic custom-table endpoints, so data created by other Perfex add-ons
@@ -179,7 +213,22 @@ tied to one tool:
 | **Make.com** | Native app with triggers, actions and searches |
 | **Pabbly Connect** | Via REST API and webhooks |
 | **IFTTT** | Via webhooks |
-| **Anything else** | Standard REST over HTTPS with JSON, plus an auto-generated Postman collection and a Swagger/OpenAPI playground |
+| **Anything else** | Standard REST over HTTPS with JSON, plus an auto-generated Postman collection and an OpenAPI 3.1 spec at `GET /api/openapi.json` |
+
+## AI agents (MCP)
+
+Two ways to put Perfex CRM in front of an AI agent:
+
+1. **This node as a tool.** Both the action node and the trigger declare
+   `usableAsTool`, so an n8n **AI Agent** can call Perfex operations directly -
+   find a customer, draft an invoice, update a lead - as steps in a reasoning
+   loop.
+2. **The module's built-in MCP server.** REST API module v3 exposes a
+   **Model Context Protocol** server at `POST /api/mcp` with **148
+   permission-filtered CRM tools**, speaking JSON-RPC 2.0 over streamable HTTP.
+   Point Claude, ChatGPT, Cursor or an n8n AI Agent at that endpoint and the CRM
+   becomes part of the conversation. Every tool respects the API token's
+   permissions, so an agent can only do what its token allows.
 
 ## Example workflows
 
@@ -277,5 +326,7 @@ may be affiliate links.
 ---
 
 **Keywords:** Perfex CRM n8n integration, Perfex CRM API, Perfex CRM automation,
-Perfex CRM REST API module, Perfex CRM webhooks, Perfex CRM Zapier, Perfex CRM
-Make.com, self-hosted CRM automation, n8n community node, CRM workflow automation.
+Perfex CRM REST API module, Perfex CRM webhooks, Perfex CRM MCP server, Perfex
+CRM AI agent, Perfex CRM knowledge base, Perfex CRM notes, Perfex CRM OpenAPI,
+Perfex CRM Zapier, Perfex CRM Make.com, self-hosted CRM automation, n8n community
+node, n8n AI agent tool, CRM workflow automation.
