@@ -56,8 +56,17 @@ export class PerfexCrmTrigger implements INodeType {
 		const credentials = await this.getCredentials('perfexCrmApi');
 		const baseUrl = (credentials.url as string).replace(/\/$/, '');
 
+		const manualMode = this.getMode() === 'manual';
 		const staticData = this.getWorkflowStaticData('node');
 		const seen = (staticData.seenIds as string[]) ?? [];
+
+		const qs: IDataObject = { limit };
+		// The polling endpoint only returns records from the last 24 hours by
+		// default. A manual "fetch test event" should surface a sample whatever
+		// its age, so widen the window to the whole history for that case.
+		if (manualMode) {
+			qs.since = 1;
+		}
 
 		const response = await this.helpers.httpRequestWithAuthentication.call(
 			this,
@@ -65,7 +74,7 @@ export class PerfexCrmTrigger implements INodeType {
 			{
 				method: 'GET',
 				url: `${baseUrl}/api/zapier/poll/${resource}`,
-				qs: { limit },
+				qs,
 				json: true,
 				ignoreHttpStatusErrors: true,
 				returnFullResponse: true,
@@ -93,8 +102,15 @@ export class PerfexCrmTrigger implements INodeType {
 		const idOf = (record: IDataObject): string =>
 			String(record.id ?? record.userid ?? record.ticketid ?? record.staffid ?? '');
 
-		// On the first poll the workflow only records what already exists, so an
-		// established installation does not replay its whole history.
+		// A manual execution returns a sample so the user can see the data shape
+		// and map fields. This runs before the baseline logic on purpose: it must
+		// never be swallowed by the first-poll bookkeeping.
+		if (manualMode) {
+			return [this.helpers.returnJsonArray(records.slice(0, 1))];
+		}
+
+		// On the first automatic poll the workflow only records what already
+		// exists, so an established installation does not replay its whole history.
 		if (staticData.seenIds === undefined) {
 			staticData.seenIds = records.map(idOf);
 			return null;
@@ -107,10 +123,6 @@ export class PerfexCrmTrigger implements INodeType {
 
 		// Keep the window bounded so static data cannot grow without limit.
 		staticData.seenIds = [...seen, ...fresh.map(idOf)].slice(-500);
-
-		if (this.getMode() === 'manual') {
-			return [this.helpers.returnJsonArray(records.slice(0, 1))];
-		}
 
 		return [this.helpers.returnJsonArray(fresh)];
 	}
