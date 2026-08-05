@@ -1,6 +1,6 @@
 {
   "name": "@themesic/n8n-nodes-perfex-crm",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "n8n node for Perfex CRM. Automate customers, leads, invoices, estimates, projects, tasks and tickets over the REST API module for Perfex CRM, by Themesic Interactive.",
   "keywords": [
     "n8n-community-node-package",
