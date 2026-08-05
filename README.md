@@ -1,4 +1,4 @@
-# Official Perfex CRM node for n8n - API & Webhook Workflow Automation
+# Perfex CRM node for n8n - Official API & Webhook Workflow Automation
 
 [![npm version](https://img.shields.io/npm/v/@themesic/n8n-nodes-perfex-crm.svg)](https://www.npmjs.com/package/@themesic/n8n-nodes-perfex-crm)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
