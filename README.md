@@ -35,7 +35,7 @@ node now exposes the parts of v3 that matter inside n8n:
 
 v3 also ships things that work *through* this node without extra configuration:
 an **MCP server** with 148 AI-agent tools, **Webhooks 2.0** (124 events, async
-delivery with retries and HMAC signatures), an **OpenAPI 3.1** endpoint,
+delivery with retries and HMAC signatures), an **OpenAPI 3.0** endpoint,
 **batch operations**, `Idempotency-Key` support and `X-RateLimit` headers. See
 [Real-time webhooks](#real-time-webhooks-for-perfex-crm) and
 [AI agents](#ai-agents-mcp).
@@ -64,7 +64,7 @@ delivery with retries and HMAC signatures), an **OpenAPI 3.1** endpoint,
 | Requirement | Details |
 | --- | --- |
 | Perfex CRM | Any self-hosted installation - [get Perfex CRM](https://1.envato.market/mydata-crm) |
-| REST API module | [REST API module for Perfex CRM](https://codecanyon.net/item/rest-api-for-perfex-crm/25278359) v2.x installed on that installation |
+| REST API module | [REST API module for Perfex CRM](https://codecanyon.net/item/rest-api-for-perfex-crm/25278359) v2.x or v3.x installed on that installation (v3.0.3 is current) |
 | n8n | 1.x, self-hosted or Cloud |
 | PHP | 7.4+ or 8.x on the Perfex server |
 
@@ -175,9 +175,10 @@ instant triggers.
 
 ### Events webhooks, included in the REST API module
 
-The [REST API module](https://codecanyon.net/item/rest-api-for-perfex-crm/25278359)
-ships with an events webhooks system covering the API lifecycle - authentication,
-rate limiting, request and response, controller execution and errors. It includes:
+Since v3.0 the [REST API module](https://codecanyon.net/item/rest-api-for-perfex-crm/25278359)
+ships **Webhooks 2.0**: **124 events across 22 event groups**, managed entirely
+over REST (`/api/webhooks`, `/api/webhooks/events`, per-webhook toggle and
+delivery logs), with asynchronous delivery and SSRF protection. It includes:
 
 - **SHA256 HMAC signature verification**, so you can prove a payload came from your CRM
 - **Configurable retry logic** for failed deliveries
@@ -213,22 +214,7 @@ tied to one tool:
 | **Make.com** | Native app with triggers, actions and searches |
 | **Pabbly Connect** | Via REST API and webhooks |
 | **IFTTT** | Via webhooks |
-| **Anything else** | Standard REST over HTTPS with JSON, plus an auto-generated Postman collection and an OpenAPI 3.1 spec at `GET /api/openapi.json` |
-
-## AI agents (MCP)
-
-Two ways to put Perfex CRM in front of an AI agent:
-
-1. **This node as a tool.** Both the action node and the trigger declare
-   `usableAsTool`, so an n8n **AI Agent** can call Perfex operations directly -
-   find a customer, draft an invoice, update a lead - as steps in a reasoning
-   loop.
-2. **The module's built-in MCP server.** REST API module v3 exposes a
-   **Model Context Protocol** server at `POST /api/mcp` with **148
-   permission-filtered CRM tools**, speaking JSON-RPC 2.0 over streamable HTTP.
-   Point Claude, ChatGPT, Cursor or an n8n AI Agent at that endpoint and the CRM
-   becomes part of the conversation. Every tool respects the API token's
-   permissions, so an agent can only do what its token allows.
+| **Anything else** | Standard REST over HTTPS with JSON - **74 paths, 144 operations** described by an OpenAPI 3.0 spec (`GET /api/openapi`, [reference copy](https://github.com/themesic/perfex-rest-api-examples/tree/main/openapi)) plus a ready-made [Postman collection](https://github.com/themesic/perfex-rest-api-examples/tree/main/postman) |
 
 ## Example workflows
 
@@ -288,8 +274,12 @@ for the compatibility list.
 every endpoint with request and response examples, plus an interactive playground.
 
 **Can I use it with an AI agent?**
-Yes. The node declares itself usable as a tool, so n8n AI Agent nodes can call
-Perfex CRM operations directly.
+Yes, two ways. Inside n8n, the node declares itself usable as a tool, so n8n AI
+Agent nodes can call Perfex CRM operations directly. Outside n8n, v3.0 of the
+REST API module ships a native **MCP server** (`POST /api/mcp`, JSON-RPC 2.0)
+exposing **148 permission-filtered CRM tools** to Claude Desktop, Cursor and any
+MCP client - see the
+[MCP guide](https://github.com/themesic/perfex-rest-api-examples/blob/main/docs/mcp.md).
 
 ## Related products
 
@@ -302,6 +292,7 @@ Perfex CRM operations directly.
 ## Resources
 
 - [API documentation](https://perfexcrm.themesic.com/apiguide/)
+- [Code examples, Postman collection and OpenAPI spec](https://github.com/themesic/perfex-rest-api-examples)
 - [REST API module product page](https://themesic.com/product/rest-api-module-for-perfex-crm-connect-your-perfex-crm-with-third-party-applications/)
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
 - [Report an issue](https://github.com/themesic/n8n-nodes-perfex-crm/issues)
