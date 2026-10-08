@@ -6,6 +6,7 @@ import type {
 	IPollFunctions,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { ensureLicensed } from './license';
 
 export class PerfexCrmTrigger implements INodeType {
 	description: INodeTypeDescription = {
@@ -54,6 +55,7 @@ export class PerfexCrmTrigger implements INodeType {
 		const limit = this.getNodeParameter('limit', 50) as number;
 
 		const credentials = await this.getCredentials('perfexCrmApi');
+		await ensureLicensed(this, credentials);
 		const baseUrl = (credentials.url as string).replace(/\/$/, '');
 
 		const manualMode = this.getMode() === 'manual';

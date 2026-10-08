@@ -6,6 +6,7 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { ensureLicensed } from './license';
 
 export class PerfexCrm implements INodeType {
 	description: INodeTypeDescription = {
@@ -6057,6 +6058,7 @@ export class PerfexCrm implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 
 		const credentials = await this.getCredentials('perfexCrmApi');
+		await ensureLicensed(this, credentials);
 		const baseUrl = (credentials.url as string).replace(/\/$/, '');
 
 		// Maps the node's resource values onto the API's path segments.

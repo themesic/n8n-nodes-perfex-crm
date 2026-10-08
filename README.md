@@ -13,8 +13,9 @@ with thousands of sales and a consistently high rating.
 
 Perfex CRM is self-hosted and ships without a REST API. This node talks directly
 to the API that our module adds to **your own** installation. No third-party
-proxy, no per-operation fees, no vendor lock-in: your data goes from n8n to your
-server and nowhere else.
+proxy, no per-operation fees, no vendor lock-in: your CRM data goes from n8n to
+your server. The only other request is a cached
+[license check](#license-requirement).
 
 > **In one sentence:** `@themesic/n8n-nodes-perfex-crm` lets n8n read and write
 > Perfex CRM data over the REST API module, covering 20+ resources with 130+
@@ -53,6 +54,7 @@ delivery with retries and HMAC signatures), an **OpenAPI 3.0** endpoint,
 - [Other automation platforms](#other-automation-platforms)
 - [AI agents (MCP)](#ai-agents-mcp)
 - [Example workflows](#example-workflows)
+- [License requirement](#license-requirement)
 - [Behaviour notes](#behaviour-notes)
 - [FAQ](#faq)
 - [Related products](#related-products)
@@ -65,6 +67,7 @@ delivery with retries and HMAC signatures), an **OpenAPI 3.0** endpoint,
 | --- | --- |
 | Perfex CRM | Any self-hosted installation - [get Perfex CRM](https://1.envato.market/mydata-crm) |
 | REST API module | [REST API module for Perfex CRM](https://codecanyon.net/item/rest-api-for-perfex-crm/25278359) v2.x or v3.x installed on that installation |
+| License | A valid REST API module license registered for your CRM's domain (or IP) - see [License requirement](#license-requirement) |
 | n8n | 1.x, self-hosted or Cloud |
 | PHP | 7.4+ or 8.x on the Perfex server |
 
@@ -106,7 +109,8 @@ with per-token permissions, rate limiting, quota limiting and IP allow/deny list
 with CIDR notation - all configured on your server, not in n8n.
 
 Saving the credential runs a live check against your installation, so a wrong URL
-or an expired token is caught immediately.
+or an expired token is caught immediately. The module license is checked when the
+node or the trigger runs - see [License requirement](#license-requirement).
 
 ## Supported resources and operations
 
@@ -228,6 +232,24 @@ tied to one tool:
 - **Client onboarding:** signed contract > *Create a customer*, *Create a project*, *Create tasks* in sequence
 - **AI agent:** the node is exposed as an n8n tool, so an agent can query and update the CRM directly
 
+## License requirement
+
+This node requires the REST API module for Perfex CRM with a valid license for
+your CRM's domain. Before the node or the trigger runs, it asks Themesic's
+license service at `perfex-mcp.themesic.com` whether that domain is licensed.
+
+- **Only the CRM address is sent.** Your API token, and all CRM data, go to your
+  own server only.
+- A valid result is cached for 6 hours, so this is not a request per execution.
+  A missing, expired or revoked license is reported with a link to get one.
+- If the license service is briefly unreachable, a license confirmed in the last
+  72 hours keeps workflows running.
+- Module v2.x and v3.x both work, and so do CRMs on a LAN or behind a firewall,
+  as long as the license is registered for the address in the credential
+  (domain or IP).
+
+Get a license: [REST API module for Perfex CRM](https://themesic.com/product/rest-api-module-for-perfex-crm-connect-your-perfex-crm-with-third-party-applications/)
+
 ## Behaviour notes
 
 Some Perfex endpoints answer `404 No data were found` instead of an empty list.
@@ -252,7 +274,8 @@ adds one to your installation, and this n8n node talks to it.
 
 **Is this node free?**
 Yes, the node is MIT licensed and free. It requires the REST API module on your
-Perfex installation, which is a one-time purchase on CodeCanyon.
+Perfex installation, with a valid license for your CRM's domain, which is a
+one-time purchase on CodeCanyon.
 
 **Do I pay per operation or per record?**
 No. The module is a one-time purchase and runs on your own server. There is no
